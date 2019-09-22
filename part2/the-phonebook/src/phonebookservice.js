@@ -18,7 +18,7 @@ const remove = (id) =>
     axios
         .delete(baseUrl+id)
         .then()
-        .catch(err => console.log(err))
+        .catch()
 
 
 const update = (personObject) => 

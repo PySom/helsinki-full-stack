@@ -5,6 +5,7 @@ const App = () => {
   const [ persons, setPersons] = useState([]) 
   const [ newContact, setnewContact ] = useState({name: "", number: ""})
   const [ filterValue, setFilterValue ] = useState('')
+  const [ successStatus, setSuccessStatus ] = useState(null)
 
   useEffect(() => {
     phonebookservice
@@ -13,7 +14,7 @@ const App = () => {
         setPersons(initialData)
       })
   }, [])
-
+  
   const handleNameChange = (event) => {
     setnewContact({...newContact, name: event.target.value});
   }
@@ -53,9 +54,21 @@ const App = () => {
     confirmBeforeAction(() => phonebookservice
                                 .remove(id)
                                 .then(() => setPersons(persons.filter(person => 
-                                  person.id !== id))),
+                                  person.id !== id)))
+                                .catch(() => 
+                                  {
+                                    statusMessageHandler(`Information of ${person.name} has already been removed from the server`, 
+                                    "error")
+                                  }
+                                  ),
     `Delete ${person.name}?`)
     
+  }
+  const statusMessageHandler = (message, className) =>{
+    setSuccessStatus({message, className});
+    setTimeout(() => {
+      setSuccessStatus(null)
+    }, 5000);
   }
   const addContact = (event) =>{
     event.preventDefault();
@@ -66,12 +79,19 @@ const App = () => {
     }
     phonebookservice
       .create(createPersonObject(newContact))
-      .then(newPerson => setPersons(persons.concat(newPerson)))
+      .then(newPerson => {
+        setPersons(persons.concat(newPerson))
+        statusMessageHandler(`Added ${newPerson.name}`, "success")
+      })
   }
   const createPersonObject = (contact) => {return {name: contact.name, number: contact.number}}
   return (
     <div>
       <h2>Phonebook</h2>
+      {successStatus !== null ?
+        <Notification message={successStatus.message} className={successStatus.className}/>:
+        <></>
+       }
       <Filter filterValue={filterValue} onChange={handleFilter} />
       <h3>add a new</h3>
       <Form onSubmit = {addContact} name = {newContact.name} onNameChange={handleNameChange}
@@ -114,4 +134,6 @@ const Filter = (props) => {
 
 const Remove = ({removeHandler, id}) => <><button onClick={(event) => removeHandler(event, id)}>delete</button><br/></>
 const Person = ({person}) => (<span>{person.name} {person.number}</span>)
+
+const Notification = ({message, className}) => <p className={className}>{message}</p>
 export default App
