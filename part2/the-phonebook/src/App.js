@@ -59,6 +59,8 @@ const App = () => {
                                   {
                                     statusMessageHandler(`Information of ${person.name} has already been removed from the server`, 
                                     "error")
+                                    setPersons(persons.filter(person => 
+                                      person.id !== id));
                                   }
                                   ),
     `Delete ${person.name}?`)
@@ -82,6 +84,7 @@ const App = () => {
       .then(newPerson => {
         setPersons(persons.concat(newPerson))
         statusMessageHandler(`Added ${newPerson.name}`, "success")
+        setnewContact({name: "", number: ""});
       })
   }
   const createPersonObject = (contact) => {return {name: contact.name, number: contact.number}}
